@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.rafaa'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
 
 java {
 	toolchain {
@@ -51,4 +51,27 @@ task copyAgent(type: Copy) {
 bootJar{
 	dependsOn copyAgent
 	archiveFileName = "app.jar"
+}
+
+jib{
+
+	extraDirectories {
+		paths {
+			path {
+				from = layout.buildDirectory.dir("agent")
+				into = '/otelagent'
+			}
+		}
+	}
+
+	container {
+		jvmFlags = [
+				'-javaagent:/otelagent/opentelemetry-javaagent.jar'
+		]
+	}
+
+}
+
+tasks.named('jibDockerBuild').configure {
+	dependsOn copyAgent
 }
